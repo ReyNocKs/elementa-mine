@@ -1,0 +1,12 @@
+name: ElementaMine
+version: '1.0.0'
+main: fr.elementa.mine.ElementaMine
+api-version: '26'
+author: Elementa
+description: Systeme de mine personnelle evolutive pour Elementa
+
+commands:
+  mine:
+    description: Commandes d'administration de la mine
+    usage: /mine <setpos1|setpos2|create|reset|info>
+    permission: elementa.mine.admin
