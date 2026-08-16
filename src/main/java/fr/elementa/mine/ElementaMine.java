@@ -17,7 +17,7 @@ public class ElementaMine extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MineListener(this, mineManager, bagManager), this);
         getServer().getPluginManager().registerEvents(new GuiListener(this, bagManager), this);
 
-        MineCommand mineCommand = new MineCommand(this, mineManager);
+        MineCommand mineCommand = new MineCommand(this, mineManager, bagManager);
         getCommand("mine").setExecutor(mineCommand);
         getCommand("mine").setTabCompleter(mineCommand);
 

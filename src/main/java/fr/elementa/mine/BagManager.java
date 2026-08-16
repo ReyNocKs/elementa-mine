@@ -84,6 +84,10 @@ public class BagManager {
         }
         total *= bag.getMultiplier();
 
+        if (total <= 0) {
+            return 0; // aucun prix configure pour ces items, on ne vide pas le sac
+        }
+
         bag.clear();
         economy.depositPlayer(player, total);
         return total;

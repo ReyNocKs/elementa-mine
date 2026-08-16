@@ -1,7 +1,7 @@
 name: ElementaMine
 version: '1.0.0'
 main: fr.elementa.mine.ElementaMine
-api-version: '26.1'
+api-version: '26.2'
 author: Elementa
 description: Systeme de mine personnelle evolutive pour Elementa
 

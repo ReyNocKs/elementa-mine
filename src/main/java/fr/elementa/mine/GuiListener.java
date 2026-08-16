@@ -46,7 +46,12 @@ public class GuiListener implements Listener {
             }
             double earned = bagManager.sellAll(player);
             if (earned <= 0) {
-                msg(player, "Ton sac est vide, rien a vendre.");
+                PlayerBag bag = bagManager.getBag(player.getUniqueId());
+                if (bag.getContents().isEmpty()) {
+                    msg(player, "Ton sac est vide, rien a vendre.");
+                } else {
+                    msg(player, ChatColor.RED + "Aucun prix n'est configure pour ces items. Un admin doit utiliser /mine price.");
+                }
             } else {
                 Economy econ = bagManager.getEconomy();
                 msg(player, ChatColor.GREEN + "Vendu pour " + econ.format(earned) + " !");

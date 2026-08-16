@@ -17,14 +17,16 @@ public class MineCommand implements CommandExecutor, TabCompleter {
 
     private final ElementaMine plugin;
     private final MineManager mineManager;
+    private final BagManager bagManager;
 
     private static final List<String> SUBCOMMANDS = Arrays.asList(
-            "setpos1", "setpos2", "addblock", "create", "reset", "info", "list", "save"
+            "setpos1", "setpos2", "addblock", "create", "reset", "info", "list", "save", "delete", "price"
     );
 
-    public MineCommand(ElementaMine plugin, MineManager mineManager) {
+    public MineCommand(ElementaMine plugin, MineManager mineManager, BagManager bagManager) {
         this.plugin = plugin;
         this.mineManager = mineManager;
+        this.bagManager = bagManager;
     }
 
     private void msg(CommandSender sender, String text) {
@@ -170,6 +172,45 @@ public class MineCommand implements CommandExecutor, TabCompleter {
             case "save": {
                 mineManager.saveAll();
                 msg(sender, "Configuration sauvegardee.");
+                return true;
+            }
+
+            case "delete": {
+                if (args.length < 2) {
+                    msg(sender, "Usage: /mine delete <nom>");
+                    return true;
+                }
+                MineRegion region = mineManager.get(args[1]);
+                if (region == null) {
+                    msg(sender, "Zone inconnue: " + args[1]);
+                    return true;
+                }
+                mineManager.getAll().remove(args[1]);
+                mineManager.saveAll();
+                msg(sender, ChatColor.GREEN + "Zone \"" + args[1] + "\" supprimee.");
+                return true;
+            }
+
+            case "price": {
+                if (args.length < 3) {
+                    msg(sender, "Usage: /mine price <materiau> <valeur>");
+                    return true;
+                }
+                Material mat = Material.matchMaterial(args[1]);
+                if (mat == null) {
+                    msg(sender, "Materiau inconnu: " + args[1]);
+                    return true;
+                }
+                double price;
+                try {
+                    price = Double.parseDouble(args[2]);
+                } catch (NumberFormatException e) {
+                    msg(sender, "La valeur doit etre un nombre.");
+                    return true;
+                }
+                bagManager.setPrice(mat, price);
+                bagManager.savePrices();
+                msg(sender, ChatColor.GREEN + "Prix de " + mat.name() + " defini a " + price + " Eclats.");
                 return true;
             }
 

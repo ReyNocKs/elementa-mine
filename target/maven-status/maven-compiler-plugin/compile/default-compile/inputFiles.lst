@@ -1,0 +1,13 @@
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/BagCommand.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/BagInventoryHolder.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/MineRegion.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/PlayerBag.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/UpgradeGui.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/BagManager.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/BagGui.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/GuiListener.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/MineListener.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/UpgradeInventoryHolder.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/MineManager.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/ElementaMine.java
+/workspaces/elementa-mine/src/main/java/fr/elementa/mine/MineCommand.java
