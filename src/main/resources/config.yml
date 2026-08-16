@@ -1,1 +1,8 @@
 regions: {}
+
+prices:
+  STONE: 1
+  ANDESITE: 1
+  DIORITE: 1
+  COAL_ORE: 5
+  IRON_ORE: 10
