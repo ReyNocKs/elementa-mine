@@ -5,7 +5,7 @@ api-version: '26.1'
 author: Elementa
 description: Systeme de mine personnelle evolutive pour Elementa
 
-softdepend: [VaultUnlocked, Vault]
+softdepend: [VaultUnlocked, Vault, BentoBox]
 
 commands:
   mine:

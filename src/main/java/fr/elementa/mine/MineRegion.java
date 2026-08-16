@@ -15,6 +15,7 @@ public class MineRegion {
     private Location pos2;
     private int brokenCount = 0;
     private int resetThreshold = 500;
+    private int tier = 1;
     // Materiau -> pourcentage (les pourcentages doivent totaliser 100)
     private final Map<Material, Integer> composition = new LinkedHashMap<>();
 
@@ -74,6 +75,14 @@ public class MineRegion {
 
     public void setResetThreshold(int resetThreshold) {
         this.resetThreshold = resetThreshold;
+    }
+
+    public int getTier() {
+        return tier;
+    }
+
+    public void setTier(int tier) {
+        this.tier = tier;
     }
 
     public Map<Material, Integer> getComposition() {

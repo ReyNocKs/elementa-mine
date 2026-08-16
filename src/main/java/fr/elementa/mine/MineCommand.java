@@ -20,7 +20,7 @@ public class MineCommand implements CommandExecutor, TabCompleter {
     private final BagManager bagManager;
 
     private static final List<String> SUBCOMMANDS = Arrays.asList(
-            "setpos1", "setpos2", "addblock", "create", "reset", "info", "list", "save", "delete", "price"
+            "setpos1", "setpos2", "addblock", "create", "reset", "info", "list", "save", "delete", "price", "tier"
     );
 
     public MineCommand(ElementaMine plugin, MineManager mineManager, BagManager bagManager) {
@@ -151,6 +151,7 @@ public class MineCommand implements CommandExecutor, TabCompleter {
                 }
                 msg(sender, "Zone: " + region.getName());
                 msg(sender, "Definie: " + region.isFullyDefined());
+                msg(sender, "Palier: " + region.getTier() + "/" + MineTiers.MAX_TIER + " (" + MineTiers.get(region.getTier()).name + ")");
                 msg(sender, "Blocs casses: " + region.getBrokenCount() + " / " + region.getResetThreshold());
                 StringBuilder comp = new StringBuilder();
                 for (Map.Entry<Material, Integer> e : region.getComposition().entrySet()) {
@@ -211,6 +212,37 @@ public class MineCommand implements CommandExecutor, TabCompleter {
                 bagManager.setPrice(mat, price);
                 bagManager.savePrices();
                 msg(sender, ChatColor.GREEN + "Prix de " + mat.name() + " defini a " + price + " Eclats.");
+                return true;
+            }
+
+            case "tier": {
+                if (args.length < 3) {
+                    msg(sender, "Usage: /mine tier <nom> <niveau 1-" + MineTiers.MAX_TIER + ">");
+                    return true;
+                }
+                MineRegion region = mineManager.get(args[1]);
+                if (region == null) {
+                    msg(sender, "Zone inconnue: " + args[1]);
+                    return true;
+                }
+                int level;
+                try {
+                    level = Integer.parseInt(args[2]);
+                } catch (NumberFormatException e) {
+                    msg(sender, "Le niveau doit etre un nombre.");
+                    return true;
+                }
+                if (level < 1 || level > MineTiers.MAX_TIER) {
+                    msg(sender, "Le niveau doit etre entre 1 et " + MineTiers.MAX_TIER + ".");
+                    return true;
+                }
+                MineTiers.TierData tierData = MineTiers.get(level);
+                region.setTier(level);
+                region.setResetThreshold(tierData.resetThreshold);
+                region.setComposition(tierData.composition);
+                mineManager.generate(region);
+                mineManager.saveAll();
+                msg(sender, ChatColor.GREEN + "Zone \"" + args[1] + "\" passee au palier " + level + " (" + tierData.name + ").");
                 return true;
             }
 
