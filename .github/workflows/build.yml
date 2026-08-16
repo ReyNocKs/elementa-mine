@@ -19,6 +19,12 @@ jobs:
           java-version: '25'
           cache: 'maven'
 
+      - name: Verifier la version Java active
+        run: |
+          echo "JAVA_HOME = $JAVA_HOME"
+          java -version
+          javac -version
+
       - name: Compilation avec Maven
         run: mvn -B clean package
 
