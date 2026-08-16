@@ -43,7 +43,7 @@ public class BagCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 0) {
-            showBag(player);
+            player.openInventory(BagGui.build(bagManager, bagManager.getBag(player.getUniqueId())));
             return true;
         }
 

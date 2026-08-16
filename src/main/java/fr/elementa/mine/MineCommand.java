@@ -31,6 +31,11 @@ public class MineCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(ChatColor.GOLD + "[Elementa] " + ChatColor.RESET + text);
     }
 
+    private org.bukkit.Location blockAlignedLocation(Player player) {
+        org.bukkit.Location loc = player.getLocation();
+        return new org.bukkit.Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
@@ -53,10 +58,10 @@ public class MineCommand implements CommandExecutor, TabCompleter {
                 }
                 MineRegion region = mineManager.getOrCreate(args[1]);
                 if (sub.equals("setpos1")) {
-                    region.setPos1(player.getLocation());
+                    region.setPos1(blockAlignedLocation(player));
                     msg(sender, "Position 1 de la zone \"" + args[1] + "\" definie a ta position.");
                 } else {
-                    region.setPos2(player.getLocation());
+                    region.setPos2(blockAlignedLocation(player));
                     msg(sender, "Position 2 de la zone \"" + args[1] + "\" definie a ta position.");
                 }
                 mineManager.saveAll();
