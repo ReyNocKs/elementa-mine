@@ -1,1 +1,0 @@
-package fr.elementa.mine; import org.bukkit.inventory.*; public final class MineUpgradeHolder implements InventoryHolder { private Inventory i; public void setInventory(Inventory i){this.i=i;} public Inventory getInventory(){return i;} }
