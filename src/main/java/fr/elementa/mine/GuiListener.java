@@ -4,6 +4,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.Location;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryHolder;
@@ -26,6 +27,29 @@ public class GuiListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         InventoryHolder holder = event.getInventory().getHolder();
 
+        if (holder instanceof MineUpgradeHolder) {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() != MineUpgradeGui.SLOT) return;
+            world.bentobox.bentobox.database.objects.Island island = IslandResolver.forPlayer(player);
+            MineRegion mine = island == null ? null : plugin.mines().get(island.getUniqueId().toString());
+            if (mine == null || mine.getTier() >= MineTiers.MAX_TIER) { player.sendMessage(plugin.msg("max-tier")); return; }
+            if (!bagManager.isEconomyReady()) { player.sendMessage("Economie indisponible."); return; }
+            Economy economy = bagManager.getEconomy();
+            int price = MineTiers.price(plugin, mine.getTier() + 1);
+            if (economy.getBalance(player) < price) { player.sendMessage(plugin.msg("not-enough-money")); return; }
+            economy.withdrawPlayer(player, price);
+            mine.setTier(mine.getTier() + 1);
+            int size = MineTiers.size(plugin, mine.getTier()), radius = size / 2;
+            Location center = mine.center();
+            mine.setPos1(new Location(center.getWorld(), center.getBlockX() - radius, center.getBlockY() - radius, center.getBlockZ() - radius));
+            mine.setPos2(new Location(center.getWorld(), center.getBlockX() + radius, center.getBlockY() + radius, center.getBlockZ() + radius));
+            mine.setComposition(MineTiers.composition(plugin));
+            plugin.mines().generate(mine);
+            plugin.mines().saveAll();
+            player.sendMessage(plugin.msg("upgrade-success").replace("{tier}", "" + mine.getTier()));
+            player.closeInventory();
+            return;
+        }
         if (holder instanceof BagInventoryHolder) {
             event.setCancelled(true);
             handleBagClick(event);

@@ -1,17 +1,14 @@
 name: ElementaMine
 version: '1.0.0'
 main: fr.elementa.mine.ElementaMine
-api-version: '26.1'
+api-version: '1.21'
 author: Elementa
-description: Systeme de mine personnelle evolutive pour Elementa
-
-softdepend: [VaultUnlocked, Vault, BentoBox]
-
+description: Mines personnelles par ile BentoBox avec sacs et upgrades
+softdepend: [BentoBox, Vault]
 commands:
   mine:
-    description: Commandes d'administration de la mine
-    usage: /mine <setpos1|setpos2|create|reset|info>
-    permission: elementa.mine.admin
+    description: Teleporte vers ta mine ou ouvre les upgrades
+    usage: /mine [upgrade]
   sac:
-    description: Gere ton sac de ressources minees
-    usage: /sac [vendre|autosell|upgrade]
+    description: Ouvre ton sac de ressources
+    usage: /sac

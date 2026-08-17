@@ -97,6 +97,8 @@ public class MineRegion {
     /**
      * Verifie si une location donnee est a l'interieur de la zone (bornes incluses).
      */
+    public Location center() { return new Location(world, (pos1.getBlockX()+pos2.getBlockX())/2.0, (pos1.getBlockY()+pos2.getBlockY())/2.0, (pos1.getBlockZ()+pos2.getBlockZ())/2.0); }
+
     public boolean contains(Location loc) {
         if (!isFullyDefined() || loc.getWorld() == null) return false;
         if (!loc.getWorld().equals(world)) return false;

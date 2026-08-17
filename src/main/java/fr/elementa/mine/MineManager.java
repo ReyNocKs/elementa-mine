@@ -6,6 +6,10 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.File;
+import java.io.IOException;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayDeque;
@@ -133,82 +137,77 @@ public class MineManager {
         return weighted[random.nextInt(weighted.length)];
     }
 
-    // ---------- Persistance (config.yml) ----------
+    // ---------- Persistance : un fichier YAML par UUID d'île ----------
+
+    private File islandDataDir() {
+        File dir = new File(plugin.getDataFolder(), "data/islands");
+        if (!dir.exists() && !dir.mkdirs()) plugin.getLogger().warning("Impossible de creer " + dir);
+        return dir;
+    }
 
     public void loadAll() {
         plugin.reloadConfig();
+        File dir = islandDataDir();
+        File[] files = dir.listFiles((d, n) -> n.endsWith(".yml"));
+        if (files != null) for (File file : files) loadFile(file);
+
+        // Migration unique des anciennes donnees config.yml.regions vers data/islands/UUID.yml.
         FileConfiguration config = plugin.getConfig();
-        ConfigurationSection regionsSection = config.getConfigurationSection("regions");
-        if (regionsSection == null) return;
-
-        for (String name : regionsSection.getKeys(false)) {
-            ConfigurationSection sec = regionsSection.getConfigurationSection(name);
-            if (sec == null) continue;
-
-            MineRegion region = new MineRegion(name);
-
-            String worldName = sec.getString("world");
-            if (worldName != null) {
-                World world = Bukkit.getWorld(worldName);
-                if (world != null) {
-                    if (sec.contains("pos1")) {
-                        region.setPos1(new Location(world,
-                                sec.getDouble("pos1.x"), sec.getDouble("pos1.y"), sec.getDouble("pos1.z")));
-                    }
-                    if (sec.contains("pos2")) {
-                        region.setPos2(new Location(world,
-                                sec.getDouble("pos2.x"), sec.getDouble("pos2.y"), sec.getDouble("pos2.z")));
+        ConfigurationSection legacy = config.getConfigurationSection("regions");
+        if (legacy != null) {
+            for (String id : legacy.getKeys(false)) {
+                if (!regions.containsKey(id)) {
+                    ConfigurationSection sec = legacy.getConfigurationSection(id);
+                    if (sec != null) {
+                        MineRegion region = readSection(id, sec);
+                        regions.put(id, region);
+                        saveRegion(region);
                     }
                 }
             }
-
-            region.setResetThreshold(sec.getInt("reset-threshold", 500));
-            region.resetBrokenCount();
-
-            Map<Material, Integer> composition = new HashMap<>();
-            ConfigurationSection compSection = sec.getConfigurationSection("composition");
-            if (compSection != null) {
-                for (String matName : compSection.getKeys(false)) {
-                    Material mat = Material.matchMaterial(matName);
-                    if (mat != null) {
-                        composition.put(mat, compSection.getInt(matName));
-                    }
-                }
-            }
-            region.setComposition(composition);
-
-            regions.put(name, region);
+            config.set("regions", null);
+            plugin.saveConfig();
+            plugin.getLogger().info("Anciennes donnees de mines migrees vers data/islands.");
         }
     }
 
-    public void saveAll() {
-        FileConfiguration config = plugin.getConfig();
-
-        for (Map.Entry<String, MineRegion> entry : regions.entrySet()) {
-            String name = entry.getKey();
-            MineRegion region = entry.getValue();
-            String base = "regions." + name + ".";
-
-            if (region.getWorld() != null) {
-                config.set(base + "world", region.getWorld().getName());
-            }
-            if (region.getPos1() != null) {
-                config.set(base + "pos1.x", region.getPos1().getX());
-                config.set(base + "pos1.y", region.getPos1().getY());
-                config.set(base + "pos1.z", region.getPos1().getZ());
-            }
-            if (region.getPos2() != null) {
-                config.set(base + "pos2.x", region.getPos2().getX());
-                config.set(base + "pos2.y", region.getPos2().getY());
-                config.set(base + "pos2.z", region.getPos2().getZ());
-            }
-            config.set(base + "reset-threshold", region.getResetThreshold());
-
-            for (Map.Entry<Material, Integer> comp : region.getComposition().entrySet()) {
-                config.set(base + "composition." + comp.getKey().name(), comp.getValue());
-            }
-        }
-
-        plugin.saveConfig();
+    private void loadFile(File file) {
+        String id = file.getName().substring(0, file.getName().length() - 4);
+        try { regions.put(id, readSection(id, YamlConfiguration.loadConfiguration(file))); }
+        catch (IllegalArgumentException ex) { plugin.getLogger().warning("UUID d'ile invalide: " + file.getName()); }
     }
+
+    private MineRegion readSection(String id, ConfigurationSection sec) {
+        MineRegion region = new MineRegion(id);
+        String worldName = sec.getString("world");
+        World world = worldName == null ? null : Bukkit.getWorld(worldName);
+        if (world != null) {
+            if (sec.contains("pos1")) region.setPos1(new Location(world, sec.getDouble("pos1.x"), sec.getDouble("pos1.y"), sec.getDouble("pos1.z")));
+            if (sec.contains("pos2")) region.setPos2(new Location(world, sec.getDouble("pos2.x"), sec.getDouble("pos2.y"), sec.getDouble("pos2.z")));
+        }
+        region.setTier(sec.getInt("tier", 1));
+        region.setResetThreshold(plugin.getConfig().getInt("mine.reset-threshold", 500));
+        // La composition est un parametre general de config.yml, pas une donnee d'ile.
+        region.setComposition(MineTiers.composition(plugin));
+        region.resetBrokenCount();
+        return region;
+    }
+
+    public void saveAll() { for (MineRegion region : regions.values()) saveRegion(region); }
+
+    private void saveRegion(MineRegion region) {
+        File file = new File(islandDataDir(), region.getName() + ".yml");
+        YamlConfiguration data = new YamlConfiguration();
+        if (region.getWorld() != null) data.set("world", region.getWorld().getName());
+        if (region.getPos1() != null) {
+            data.set("pos1.x", region.getPos1().getX()); data.set("pos1.y", region.getPos1().getY()); data.set("pos1.z", region.getPos1().getZ());
+        }
+        if (region.getPos2() != null) {
+            data.set("pos2.x", region.getPos2().getX()); data.set("pos2.y", region.getPos2().getY()); data.set("pos2.z", region.getPos2().getZ());
+        }
+        data.set("tier", region.getTier());
+
+        try { data.save(file); } catch (IOException ex) { plugin.getLogger().severe("Impossible de sauvegarder " + file + ": " + ex.getMessage()); }
+    }
+
 }

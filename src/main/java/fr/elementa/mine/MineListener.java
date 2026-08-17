@@ -29,13 +29,12 @@ public class MineListener implements Listener {
         Material broken = event.getBlock().getType();
 
         // On empeche le drop vanilla : le bloc va dans le sac du joueur a la place
-        event.setDropItems(false);
+        event.setDropItems(false); event.getBlock().setType(Material.AIR, false);
 
         PlayerBag bag = bagManager.getBag(player.getUniqueId());
         int leftover = bag.addItem(broken, 1);
         if (leftover > 0) {
-            player.sendMessage(ChatColor.GOLD + "[Elementa] " + ChatColor.RED
-                    + "Ton sac est plein ! Vends ton contenu avec /sac vendre.");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("messages.bag-full", "&cSac plein")));
         }
 
         if (bag.isAutosellUnlocked() && bag.isAutosellEnabled() && bagManager.isEconomyReady()) {

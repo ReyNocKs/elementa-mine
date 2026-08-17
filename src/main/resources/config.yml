@@ -1,8 +1,36 @@
-regions: {}
-
+mine:
+  y-center: 69
+  reset-threshold: 250
+  reset-period-minutes: 0
+  offset-x: 0
+  offset-z: 0
+  tiers:
+    1: {size: 9, price: 0}
+    2: {size: 13, price: 5000}
+    3: {size: 17, price: 15000}
+    4: {size: 21, price: 40000}
+  composition:
+    STONE: 60
+    ANDESITE: 15
+    DIORITE: 15
+    COAL_ORE: 10
+sac:
+  max-items: 5000
+  max-slots: 27
 prices:
-  STONE: 1
-  ANDESITE: 1
-  DIORITE: 1
-  COAL_ORE: 5
-  IRON_ORE: 10
+  STONE: 1.0
+  ANDESITE: 1.0
+  DIORITE: 1.0
+  COAL_ORE: 5.0
+  IRON_ORE: 10.0
+  GOLD_ORE: 20.0
+  DIAMOND_ORE: 100.0
+  EMERALD_ORE: 150.0
+messages:
+  mine-generated: '&aTa mine a ete generee.'
+  upgrade-success: '&aMine amelioree au tier {tier} !'
+  not-enough-money: '&cTu n''as pas assez d''argent.'
+  bag-full: '&cTon sac est plein ! Utilise /sac pour vendre.'
+  sale: '&aVente effectuee : {amount}'
+  max-tier: '&eNiveau maximum atteint.'
+  no-island: '&cTu dois avoir une ile BentoBox.'
